@@ -1,0 +1,16 @@
+version: "3"
+services:
+  pev2:
+    container_name: pev2
+    build:
+      context: .
+    image: netcorext/pev2:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pev2.entrypoints=web"
+      - "traefik.http.routers.pev2.rule=Host(`pev2.local`)"
+      - "traefik.http.services.pev2.loadbalancer.server.port=80"
+networks:
+  default:
+    external:
+      name: network-dev
