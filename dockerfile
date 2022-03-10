@@ -1,12 +1,6 @@
-FROM node:12-alpine AS SOURCE
+FROM nginx:alpine
 
-RUN apk add --update --no-cache curl openssl git yarn python2 build-base
-RUN git config --global http.sslVerify false
-RUN git config --global credential.helper store
-RUN git clone https://github.com/dalibo/pev2.git
-RUN cd pev2 && npm install && npm run build-app
-
-FROM openresty/openresty:alpine
+ENV PEV2_VERSION="0.24.0"
 
 LABEL maintainer="Aren Chen <arenchen@netcorext.com>"
 LABEL org.opencontainers.image.title="Postgres Explain Visualizer V2" \
@@ -14,7 +8,7 @@ LABEL org.opencontainers.image.title="Postgres Explain Visualizer V2" \
     org.opencontainers.image.authors="Aren Chen <arenchen@netcorext.com>" \
     org.opencontainers.image.vendor="netcorext" \
     org.opencontainers.image.licenses="MIT" \
-    org.opencontainers.image.version="0.24.0" \
+    org.opencontainers.image.version="${PEV2_VERSION}" \
     org.opencontainers.image.url="https://github.com/arenchen/pev2-docker" \
     org.opencontainers.image.source="https://github.com/arenchen/pev2-docker.git"
 
@@ -33,4 +27,4 @@ RUN echo -e 'server { \n \
     } \n \
     }' > /etc/nginx/conf.d/default.conf
 
-COPY --from=SOURCE /pev2/dist-app/ /usr/share/nginx/html
+RUN curl -sL https://github.com/dalibo/pev2/releases/download/v${PEV2_VERSION}/pev2.tar.gz | tar zx -C /usr/share/nginx/html --strip-components=1
